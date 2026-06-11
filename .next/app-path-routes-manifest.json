@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/register/route": "/api/register",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/(public)/login/page": "/login",
+  "/(public)/page": "/",
+  "/(public)/register/page": "/register",
+  "/(authenticated)/dashboard/client/page": "/dashboard/client",
+  "/(authenticated)/dashboard/client/post-project/page": "/dashboard/client/post-project",
+  "/(authenticated)/dashboard/freelancer/page": "/dashboard/freelancer",
+  "/(authenticated)/dashboard/page": "/dashboard",
+  "/(authenticated)/dashboard/profile/page": "/dashboard/profile",
+  "/(authenticated)/freelancers/[id]/page": "/freelancers/[id]",
+  "/(authenticated)/projects/[id]/page": "/projects/[id]",
+  "/(authenticated)/projects/page": "/projects"
+}

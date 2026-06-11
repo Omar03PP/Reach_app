@@ -91,6 +91,7 @@ export async function getProposalsByProject(projectId: string) {
     include: {
       freelancer: {
         select: {
+          id: true,
           name: true,
           email: true,
         },

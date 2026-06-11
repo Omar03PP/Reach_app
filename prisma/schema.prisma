@@ -19,7 +19,22 @@ model User {
   companyName      String?
   projects         Project[]
   proposals        Proposal[]
+  profile          Profile?
   createdAt        DateTime   @default(now())
+}
+
+model Profile {
+  id              String  @id @default(cuid())
+  title           String?
+  bio             String?
+  country         String?
+  skills          String[]
+  yearsExperience Int?
+  photoUrl        String?
+  companyName     String?
+  companyDesc     String?
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id])
 }
 
 model Project {
