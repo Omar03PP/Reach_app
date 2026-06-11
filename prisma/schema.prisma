@@ -9,18 +9,21 @@ datasource db {
 }
 
 model User {
-  id               String     @id @default(cuid())
+  id               String         @id @default(cuid())
   name             String
-  email            String     @unique
+  email            String         @unique
   password         String
-  role             Role       @default(FREELANCER)
+  role             Role           @default(FREELANCER)
   professionalArea String?
   country          String?
   companyName      String?
   projects         Project[]
   proposals        Proposal[]
   profile          Profile?
-  createdAt        DateTime   @default(now())
+  notifications    Notification[]
+  reviewsGiven     Review[]       @relation("ClientReviews")
+  reviewsReceived  Review[]       @relation("FreelancerReviews")
+  createdAt        DateTime       @default(now())
 }
 
 model Profile {
@@ -47,6 +50,7 @@ model Project {
   clientId    String
   client      User          @relation(fields: [clientId], references: [id])
   proposals   Proposal[]
+  review      Review?
   createdAt   DateTime      @default(now())
 }
 
@@ -63,6 +67,29 @@ model Proposal {
   createdAt  DateTime       @default(now())
 
   @@unique([projectId, freelancerId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  message   String
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+model Review {
+  id            String @id @default(cuid())
+  rating        Int
+  comment       String
+  projectId     String @unique
+  project       Project @relation(fields: [projectId], references: [id])
+  clientId      String
+  client        User   @relation("ClientReviews", fields: [clientId], references: [id])
+  freelancerId  String
+  freelancer    User   @relation("FreelancerReviews", fields: [freelancerId], references: [id])
+  createdAt     DateTime @default(now())
 }
 
 enum Role {
@@ -90,4 +117,11 @@ enum ProposalStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+enum NotificationType {
+  PROPOSAL_RECEIVED
+  PROPOSAL_ACCEPTED
+  PROPOSAL_REJECTED
+  PROJECT_COMPLETED
 }

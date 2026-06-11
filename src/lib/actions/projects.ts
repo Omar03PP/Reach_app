@@ -60,6 +60,16 @@ export async function createProject(
   redirect("/dashboard/client");
 }
 
+export async function getHomeStats() {
+  const [totalProjects, totalFreelancers, completedProjects] = await Promise.all([
+    prisma.project.count(),
+    prisma.user.count({ where: { role: "FREELANCER" } }),
+    prisma.project.count({ where: { status: "CLOSED" } }),
+  ]);
+
+  return { totalProjects, totalFreelancers, completedProjects };
+}
+
 export async function getProjects() {
   return prisma.project.findMany({
     where: {
@@ -101,4 +111,95 @@ export async function getProjectById(projectId: string) {
       },
     },
   });
+}
+
+export async function getClientDashboardData(clientId: string) {
+  const [projects, totalFreelancers] = await Promise.all([
+    prisma.project.findMany({
+      where: { clientId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        proposals: {
+          where: { status: "ACCEPTED" },
+          include: {
+            freelancer: { select: { id: true, name: true } },
+          },
+        },
+        review: true,
+        _count: { select: { proposals: true } },
+      },
+    }),
+    prisma.proposal.count({
+      where: {
+        project: { clientId },
+        status: "ACCEPTED",
+      },
+    }),
+  ]);
+
+  const active = projects.filter((p) => p.status === "IN_PROGRESS");
+  const open = projects.filter((p) => p.status === "OPEN");
+  const completed = projects.filter((p) => p.status === "CLOSED");
+
+  return {
+    stats: {
+      totalProjects: projects.length,
+      activeProjects: active.length,
+      completedProjects: completed.length,
+      totalFreelancers,
+    },
+    activeProjects: active,
+    openProjects: open,
+    completedProjects: completed,
+  };
+}
+
+export async function getFreelancerDashboardData(freelancerId: string) {
+  const [proposals, reviews] = await Promise.all([
+    prisma.proposal.findMany({
+      where: { freelancerId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true,
+            budget: true,
+            status: true,
+          },
+        },
+      },
+    }),
+    prisma.review.findMany({
+      where: { freelancerId },
+      select: { rating: true },
+    }),
+  ]);
+
+  const accepted = proposals.filter((p) => p.status === "ACCEPTED");
+  const pending = proposals.filter((p) => p.status === "PENDING");
+  const rejected = proposals.filter((p) => p.status === "REJECTED");
+  const completed = proposals.filter(
+    (p) => p.status === "ACCEPTED" && p.project.status === "CLOSED",
+  );
+
+  const avgRating =
+    reviews.length > 0
+      ? Math.round(
+          (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10,
+        ) / 10
+      : null;
+
+  return {
+    stats: {
+      totalProposals: proposals.length,
+      acceptedProposals: accepted.length,
+      completedProjects: completed.length,
+      avgRating,
+    },
+    activeProjects: accepted.filter((p) => p.project.status === "IN_PROGRESS"),
+    pendingProposals: pending,
+    completedProjects: completed,
+    rejectedProposals: rejected,
+  };
 }

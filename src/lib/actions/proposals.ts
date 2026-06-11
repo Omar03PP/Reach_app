@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/lib/actions/notifications";
 
 const proposalSchema = z.object({
   message: z
@@ -66,6 +67,15 @@ export async function createProposal(
     return { error: "Ya enviaste una propuesta a este proyecto." };
   }
 
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { clientId: true, title: true },
+  });
+
+  if (!project) {
+    return { error: "El proyecto no existe." };
+  }
+
   await prisma.proposal.create({
     data: {
       ...parsed.data,
@@ -74,6 +84,12 @@ export async function createProposal(
       status: "PENDING",
     },
   });
+
+  await createNotification(
+    project.clientId,
+    `Recibiste una nueva propuesta para "${project.title}"`,
+    "PROPOSAL_RECEIVED",
+  );
 
   revalidatePath(`/projects/${projectId}`);
   return { error: undefined };
@@ -109,7 +125,11 @@ export async function acceptProposal(proposalId: string) {
 
   const proposal = await prisma.proposal.findUnique({
     where: { id: proposalId },
-    select: { projectId: true, project: { select: { clientId: true } } },
+    select: {
+      projectId: true,
+      freelancerId: true,
+      project: { select: { clientId: true, title: true } },
+    },
   });
 
   if (!proposal || proposal.project.clientId !== session.user.id) {
@@ -135,6 +155,12 @@ export async function acceptProposal(proposalId: string) {
     }),
   ]);
 
+  await createNotification(
+    proposal.freelancerId,
+    `Tu propuesta para "${proposal.project.title}" fue aceptada`,
+    "PROPOSAL_ACCEPTED",
+  );
+
   revalidatePath(`/projects/${proposal.projectId}`);
   return { error: undefined };
 }
@@ -148,7 +174,11 @@ export async function rejectProposal(proposalId: string) {
 
   const proposal = await prisma.proposal.findUnique({
     where: { id: proposalId },
-    select: { projectId: true, project: { select: { clientId: true } } },
+    select: {
+      projectId: true,
+      freelancerId: true,
+      project: { select: { clientId: true, title: true } },
+    },
   });
 
   if (!proposal || proposal.project.clientId !== session.user.id) {
@@ -159,6 +189,12 @@ export async function rejectProposal(proposalId: string) {
     where: { id: proposalId },
     data: { status: "REJECTED" },
   });
+
+  await createNotification(
+    proposal.freelancerId,
+    `Tu propuesta para "${proposal.project.title}" fue rechazada`,
+    "PROPOSAL_REJECTED",
+  );
 
   revalidatePath(`/projects/${proposal.projectId}`);
   return { error: undefined };
@@ -177,4 +213,42 @@ export async function getFreelancerProposals(freelancerId: string) {
       },
     },
   });
+}
+
+export async function completeProject(projectId: string) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "CLIENT") {
+    redirect("/login");
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { clientId: true, title: true },
+  });
+
+  if (!project || project.clientId !== session.user.id) {
+    return { error: "No tienes permiso para completar este proyecto." };
+  }
+
+  const acceptedProposal = await prisma.proposal.findFirst({
+    where: { projectId, status: "ACCEPTED" },
+    select: { freelancerId: true },
+  });
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { status: "CLOSED" },
+  });
+
+  if (acceptedProposal) {
+    await createNotification(
+      acceptedProposal.freelancerId,
+      `El proyecto "${project.title}" fue marcado como completado`,
+      "PROJECT_COMPLETED",
+    );
+  }
+
+  revalidatePath("/dashboard/client");
+  return { error: undefined };
 }
