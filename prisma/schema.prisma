@@ -17,10 +17,39 @@ model User {
   professionalArea String?
   country          String?
   companyName      String?
+  projects         Project[]
   createdAt        DateTime @default(now())
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  budget      Float
+  category    Category
+  status      ProjectStatus @default(OPEN)
+  clientId    String
+  client      User          @relation(fields: [clientId], references: [id])
+  createdAt   DateTime      @default(now())
 }
 
 enum Role {
   CLIENT
   FREELANCER
+}
+
+enum Category {
+  IT_PROGRAMMING
+  DESIGN_MULTIMEDIA
+  WRITING_TRANSLATION
+  SALES_MARKETING
+  ADMIN_SUPPORT
+  FINANCE
+  ENGINEERING
+}
+
+enum ProjectStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
 }

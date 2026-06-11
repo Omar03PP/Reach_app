@@ -515,6 +515,12 @@ video {
 .mt-3 {
   margin-top: 0.75rem;
 }
+.mt-4 {
+  margin-top: 1rem;
+}
+.mt-5 {
+  margin-top: 1.25rem;
+}
 .mt-6 {
   margin-top: 1.5rem;
 }
@@ -527,8 +533,14 @@ video {
 .flex {
   display: flex;
 }
+.inline-flex {
+  display: inline-flex;
+}
 .grid {
   display: grid;
+}
+.min-h-40 {
+  min-height: 10rem;
 }
 .min-h-\[calc\(100vh-88px\)\] {
   min-height: calc(100vh - 88px);
@@ -542,6 +554,9 @@ video {
 .max-w-2xl {
   max-width: 42rem;
 }
+.max-w-3xl {
+  max-width: 48rem;
+}
 .max-w-6xl {
   max-width: 72rem;
 }
@@ -551,11 +566,17 @@ video {
 .max-w-xl {
   max-width: 36rem;
 }
+.resize-y {
+  resize: vertical;
+}
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .flex-col {
   flex-direction: column;
+}
+.flex-wrap {
+  flex-wrap: wrap;
 }
 .items-center {
   align-items: center;
@@ -577,6 +598,9 @@ video {
 }
 .gap-4 {
   gap: 1rem;
+}
+.gap-5 {
+  gap: 1.25rem;
 }
 .rounded-lg {
   border-radius: 0.5rem;
@@ -617,6 +641,9 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(53 184 137 / var(--tw-bg-opacity, 1));
 }
+.bg-mint\/10 {
+  background-color: rgb(53 184 137 / 0.1);
+}
 .bg-paper {
   --tw-bg-opacity: 1;
   background-color: rgb(250 247 242 / var(--tw-bg-opacity, 1));
@@ -650,6 +677,10 @@ video {
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
+}
+.px-5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
 }
 .px-6 {
   padding-left: 1.5rem;
@@ -742,6 +773,9 @@ video {
   --tw-text-opacity: 1;
   color: rgb(23 32 42 / var(--tw-text-opacity, 1));
 }
+.text-ink\/55 {
+  color: rgb(23 32 42 / 0.55);
+}
 .text-ink\/60 {
   color: rgb(23 32 42 / 0.6);
 }
@@ -825,6 +859,10 @@ select {
   color: rgb(23 32 42 / 0.35);
 }
 
+.hover\:border-ink\/35:hover {
+  border-color: rgb(23 32 42 / 0.35);
+}
+
 .hover\:border-ink\/40:hover {
   border-color: rgb(23 32 42 / 0.4);
 }
@@ -871,8 +909,20 @@ select {
 
 @media (min-width: 640px) {
 
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .sm\:flex-row {
     flex-direction: row;
+  }
+
+  .sm\:items-start {
+    align-items: flex-start;
+  }
+
+  .sm\:items-end {
+    align-items: flex-end;
   }
 
   .sm\:text-5xl {

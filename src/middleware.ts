@@ -14,6 +14,12 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
+  if (nextUrl.pathname.startsWith("/dashboard/client/post-project")) {
+    if (token?.role !== "CLIENT") {
+      return NextResponse.redirect(new URL("/login", nextUrl));
+    }
+  }
+
   if (nextUrl.pathname.startsWith("/dashboard/client")) {
     if (token?.role !== "CLIENT") {
       return NextResponse.redirect(new URL("/dashboard/freelancer", nextUrl));
