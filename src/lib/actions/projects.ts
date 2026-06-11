@@ -88,3 +88,17 @@ export async function getClientProjects(clientId: string) {
     },
   });
 }
+
+export async function getProjectById(projectId: string) {
+  return prisma.project.findUnique({
+    where: { id: projectId },
+    include: {
+      client: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+}

@@ -68,6 +68,12 @@ export default async function ProjectsPage() {
                 <p className="mt-5 text-sm font-semibold text-ink/55">
                   Publicado por {project.client.name}
                 </p>
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="mt-4 inline-flex rounded-md bg-mint px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-mint/90"
+                >
+                  Ver detalle
+                </Link>
               </article>
             ))}
           </div>

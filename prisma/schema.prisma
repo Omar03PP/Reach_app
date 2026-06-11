@@ -9,16 +9,17 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
+  id               String     @id @default(cuid())
   name             String
-  email            String   @unique
+  email            String     @unique
   password         String
-  role             Role     @default(FREELANCER)
+  role             Role       @default(FREELANCER)
   professionalArea String?
   country          String?
   companyName      String?
   projects         Project[]
-  createdAt        DateTime @default(now())
+  proposals        Proposal[]
+  createdAt        DateTime   @default(now())
 }
 
 model Project {
@@ -30,7 +31,23 @@ model Project {
   status      ProjectStatus @default(OPEN)
   clientId    String
   client      User          @relation(fields: [clientId], references: [id])
+  proposals   Proposal[]
   createdAt   DateTime      @default(now())
+}
+
+model Proposal {
+  id         String         @id @default(cuid())
+  message    String
+  price      Float
+  estimatedDays Int
+  status     ProposalStatus @default(PENDING)
+  projectId  String
+  project    Project        @relation(fields: [projectId], references: [id])
+  freelancerId String
+  freelancer User           @relation(fields: [freelancerId], references: [id])
+  createdAt  DateTime       @default(now())
+
+  @@unique([projectId, freelancerId])
 }
 
 enum Role {
@@ -52,4 +69,10 @@ enum ProjectStatus {
   OPEN
   IN_PROGRESS
   CLOSED
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

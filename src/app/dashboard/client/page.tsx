@@ -98,6 +98,12 @@ export default async function ClientDashboardPage() {
                 <p className="mt-4 leading-7 text-ink/70">
                   {project.description}
                 </p>
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="mt-4 inline-flex rounded-md bg-coral px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-coral/90"
+                >
+                  Ver propuestas
+                </Link>
               </article>
             ))}
           </div>
